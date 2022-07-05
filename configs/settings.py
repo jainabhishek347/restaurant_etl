@@ -1,11 +1,11 @@
 
-DATABASE ="restaurant_db"
+DATABASE =""
 
-USER ='postgres'
+USER =''
 
-PASSWORD ='Qaz896412'
+PASSWORD =''
 
-HOST ='database-2.cu9ceto0tokq.us-east-1.rds.amazonaws.com'
+HOST =''
 
-PORT ='5432'
+PORT =''
 
