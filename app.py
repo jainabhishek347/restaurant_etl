@@ -16,9 +16,12 @@ FIELDNAMES =['timestamp','store','customer_name',
 
 FILENAME = 'chesterfield.csv'
 
-DATA = pd.read_csv(FILENAME, names = FIELDNAMES)
 
-def csv_to_df():
+
+def csv_to_df(DATA):
+    
+    # DATA = pd.read_csv(FILENAME, names = FIELDNAMES)
+
     LOGGER.info('Creating Products DataFrame!')
     products_df = extract.create_products_df(DATA)
 
@@ -31,13 +34,30 @@ def csv_to_df():
     return products_df, customer_df, store_df
 
 def handler(event, context):
+
+    print('=============================')
+    print(event)
+
+    bucket_name = event["Records"][0]["s3"]["bucket"]["name"]
+    s3_file_name = event["Records"][0]["s3"]["object"]["key"]
+
+    print(bucket_name, s3_file_name)
+    
+    df = pd.read_csv(f's3://{bucket_name}/{s3_file_name}', sep=',')
+    print (df.head())
+
+    DATA = pd.read_csv(f's3://{bucket_name}/{s3_file_name}', names = FIELDNAMES)
+    print(DATA)
+
     conn, cursor = get_db_connection()
 
     LOGGER.info('Creating tables in database if tables not exists!')
     tables = table_script.db_create_tables(conn, cursor)
 
     LOGGER.info('Creating and Fetching Data from DataFrames!')
-    products_df, customer_df, store_df = csv_to_df()
+    
+    products_df, customer_df, store_df = csv_to_df(DATA)
+
     basket_df = load_basket.create_basket_df(conn, cursor, DATA)
 
     LOGGER.info('Inserting Data into Database..')
